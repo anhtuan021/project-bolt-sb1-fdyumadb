@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Globe } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,12 @@ const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
+  
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,18 +28,33 @@ const SignUpPage = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     if (!agreeToTerms) {
-      alert('Please agree to the Terms of Service and Privacy Policy');
+      setError('Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật');
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Mật khẩu xác nhận không khớp');
       return;
     }
-    // Handle sign up logic here
-    console.log('Sign up attempt:', formData);
+    
+    setIsLoading(true);
+    
+    try {
+      const success = await signup(formData);
+      if (success) {
+        navigate('/'); // Chuyển về trang chủ sau khi đăng ký thành công
+      } else {
+        setError('Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleSignUp = () => {
@@ -130,6 +151,12 @@ const SignUpPage = () => {
 
               {/* Sign Up Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+                
                 <div>
                   <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name
@@ -243,9 +270,10 @@ const SignUpPage = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Create Account
+                  {isLoading ? 'Đang tạo tài khoản...' : 'Create Account'}
                 </button>
               </form>
             </div>
