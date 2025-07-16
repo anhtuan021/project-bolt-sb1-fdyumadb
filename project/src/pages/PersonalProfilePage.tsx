@@ -133,42 +133,6 @@ const PersonalProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Camera className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">SnapMatch AI</span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Globe className="h-4 w-4 text-gray-600" />
-                <select 
-                  value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="text-sm border-none bg-transparent focus:outline-none"
-                >
-                  <option>English 🇺🇸</option>
-                  <option>Vietnamese 🇻🇳</option>
-                </select>
-              </div>
-              
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
-              
-              <span className="text-red-500 font-medium">Đăng xuất</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
