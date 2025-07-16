@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Camera, Menu, X, Globe, User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const navigation = [
-    { name: 'Find Photographers', href: '/photographers' },
-    { name: 'AI Features', href: '/ai-tools' },
-    { name: 'Support', href: '/support' },
+    { name: t('header.findPhotographers'), href: '/photographers' },
+    { name: t('header.aiFeatures'), href: '/ai-tools' },
+    { name: t('header.support'), href: '/support' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -21,6 +23,11 @@ const Header = () => {
     logout();
     setIsUserMenuOpen(false);
   };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'vi' : 'en');
+  };
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,17 +59,18 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <button 
+              onClick={toggleLanguage}
+              className="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+            >
               <Globe className="h-4 w-4" />
-              <span>EN</span>
-              <span className="text-gray-400">|</span>
-              <span>VN</span>
-            </div>
+              <span>{language === 'en' ? 'English 🇺🇸' : 'Tiếng Việt 🇻🇳'}</span>
+            </button>
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600">
-                  Welcome, <span className="font-medium text-gray-900">{user?.name}</span>
+                  {t('header.welcome')}, <span className="font-medium text-gray-900">{user?.name}</span>
                 </span>
                 
                 {/* User Menu */}
@@ -87,14 +95,14 @@ const Header = () => {
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         <User className="h-4 w-4 mr-2" />
-                        Profile
+                        {t('header.profile')}
                       </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
-                        Logout
+                        {t('header.logout')}
                       </button>
                     </div>
                   )}
@@ -106,13 +114,13 @@ const Header = () => {
                   to="/login"
                   className="text-gray-700 hover:text-blue-600 transition-colors"
                 >
-                  Login
+                  {t('header.login')}
                 </Link>
                 <Link 
                   to="/signup"
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Sign Up
+                  {t('header.signup')}
                 </Link>
               </>
             )}
@@ -150,20 +158,27 @@ const Header = () => {
             <div className="pt-4 border-t border-gray-200">
               {isAuthenticated ? (
                 <div className="space-y-3">
+                  <button
+                    onClick={toggleLanguage}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span>{language === 'en' ? 'English 🇺🇸' : 'Tiếng Việt 🇻🇳'}</span>
+                  </button>
                   <div className="flex items-center space-x-3">
                     <img
                       src={user?.avatar}
                       alt={user?.name}
                       className="w-8 h-8 rounded-full object-cover"
                     />
-                    <span className="text-sm text-gray-900">Welcome, {user?.name}</span>
+                    <span className="text-sm text-gray-900">{t('header.welcome')}, {user?.name}</span>
                   </div>
                   <Link
                     to="/profile"
                     className="block text-gray-700 hover:text-blue-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Profile
+                    {t('header.profile')}
                   </Link>
                   <button
                     onClick={() => {
@@ -172,24 +187,31 @@ const Header = () => {
                     }}
                     className="block text-gray-700 hover:text-blue-600 transition-colors"
                   >
-                    Logout
+                    {t('header.logout')}
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center space-x-4">
+                  <button
+                    onClick={toggleLanguage}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span>{language === 'en' ? 'EN' : 'VI'}</span>
+                  </button>
                   <Link 
                     to="/login"
                     className="text-gray-700 hover:text-blue-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Login
+                    {t('header.login')}
                   </Link>
                   <Link 
                     to="/signup"
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Sign Up
+                    {t('header.signup')}
                   </Link>
                 </div>
               )}

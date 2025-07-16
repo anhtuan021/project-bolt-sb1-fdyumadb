@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Camera, Palette, Heart, Users, Shirt, Star, ArrowRight, Lightbulb, Edit3, Sparkles, BarChart3, CheckCircle, Headphones } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const HomePage = () => {
   const [searchLocation, setSearchLocation] = useState('');
   const [searchStyle, setSearchStyle] = useState('');
   const [searchBudget, setSearchBudget] = useState('');
+  const { t } = useLanguage();
 
   const photographerTypes = [
     { name: 'Lily Emily', location: 'New York, USA', rating: 4.9, reviews: 127, specialty: 'Portrait', price: '$3/hr', image: 'https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
@@ -64,13 +66,13 @@ const HomePage = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Find Your Perfect Photographer with{' '}
+              {t('home.title').split('AI')[0]}{' '}
               <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 AI
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
-              Connect with professional photographers powered by intelligent matching
+              {t('home.subtitle')}
             </p>
 
             {/* Search Form */}
@@ -80,7 +82,7 @@ const HomePage = () => {
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     type="text"
-                    placeholder="Location"
+                    placeholder={t('home.search.location')}
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -93,7 +95,7 @@ const HomePage = () => {
                     onChange={(e) => setSearchStyle(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
-                    <option value="">Photography Style</option>
+                    <option value="">{t('home.search.style')}</option>
                     <option value="portrait">Portrait</option>
                     <option value="wedding">Wedding</option>
                     <option value="event">Event</option>
@@ -107,7 +109,7 @@ const HomePage = () => {
                     onChange={(e) => setSearchBudget(e.target.value)}
                     className="w-full pl-8 pr-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
-                    <option value="">Budget Range</option>
+                    <option value="">{t('home.search.budget')}</option>
                     <option value="0-20">$0 - $20</option>
                     <option value="20-50">$20 - $50</option>
                     <option value="50+">$50+</option>
@@ -118,7 +120,7 @@ const HomePage = () => {
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium"
                 >
                   <Search className="h-5 w-5" />
-                  <span>Search</span>
+                  <span>{t('home.search.button')}</span>
                 </Link>
               </div>
             </div>
@@ -130,7 +132,7 @@ const HomePage = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-bold text-gray-900">Top Photographers Near You</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{t('home.topPhotographers')}</h2>
             <div className="flex space-x-2">
               <button className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow">
                 <ArrowRight className="h-5 w-5 text-gray-600 rotate-180" />
@@ -189,10 +191,10 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              AI-Powered Photography Experience
+              {t('home.aiFeatures')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Transform your photography workflow with our intelligent tools designed to enhance every aspect of your creative process
+              {t('home.aiSubtitle')}
             </p>
           </div>
 
@@ -221,23 +223,23 @@ const HomePage = () => {
       <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Photography Experience?
+            {t('home.cta.title')}
           </h2>
           <p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
-            Join thousands of satisfied clients and photographers who trust SnapMatch AI
+            {t('home.cta.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/photographers"
               className="bg-white text-blue-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
             >
-              Find a Photographer
+              {t('home.cta.findPhotographer')}
             </Link>
             <Link
               to="#"
               className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-blue-600 transition-colors"
             >
-              Join as Photographer
+              {t('home.cta.joinPhotographer')}
             </Link>
           </div>
         </div>
