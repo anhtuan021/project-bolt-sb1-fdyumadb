@@ -13,8 +13,9 @@ const Header = () => {
 
   const navigation = [
     { name: t('header.findPhotographers'), href: '/photographers' },
+    { name: t('header.booking'), href: '/booking' },
     { name: t('header.aiFeatures'), href: '/ai-tools' },
-    { name: t('header.support'), href: '/support' },
+    { name: t('header.support'), href: '/support' }, 
   ];
 
   const isActive = (path: string) => location.pathname === path;

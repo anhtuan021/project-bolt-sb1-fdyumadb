@@ -28,7 +28,7 @@ const translations = {
     'header.profile': 'Profile',
     'header.logout': 'Logout',
     'header.welcome': 'Welcome',
-    
+    'header.booking': 'Booking',
     // Home Page
     'home.title': 'Find Your Perfect Photographer with AI',
     'home.subtitle': 'Connect with professional photographers powered by intelligent matching',
@@ -124,7 +124,7 @@ const translations = {
     'header.profile': 'Hồ Sơ',
     'header.logout': 'Đăng Xuất',
     'header.welcome': 'Chào mừng',
-    
+    'header.booking': 'Đặt phòng',
     // Home Page
     'home.title': 'Tìm Nhiếp Ảnh Gia Hoàn Hảo với AI',
     'home.subtitle': 'Kết nối với các nhiếp ảnh gia chuyên nghiệp thông qua hệ thống ghép đôi thông minh',
