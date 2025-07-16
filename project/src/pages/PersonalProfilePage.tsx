@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Edit, Star, Calendar, Camera, Globe, Sun, Moon } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const PersonalProfilePage = () => {
   const [selectedTab, setSelectedTab] = useState('upcoming');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('Vietnamese');
+  const { language, setLanguage, t } = useLanguage();
 
   const user = {
     name: 'Nguyễn Văn A',
@@ -133,7 +134,6 @@ const PersonalProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
         <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
@@ -155,7 +155,7 @@ const PersonalProfilePage = () => {
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Edit className="h-4 w-4" />
-              <span>Chỉnh sửa hồ sơ</span>
+              <span>{t('profile.editProfile')}</span>
             </Link>
           </div>
         </div>
@@ -172,7 +172,7 @@ const PersonalProfilePage = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                Sắp tới
+                {t('profile.upcoming')}
               </button>
               <button
                 onClick={() => setSelectedTab('completed')}
@@ -182,14 +182,14 @@ const PersonalProfilePage = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                Đã hoàn thành
+                {t('profile.completed')}
               </button>
             </div>
           </div>
 
           {/* Booking History */}
           <div className="p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Lịch sử đặt lịch</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{t('profile.bookingHistory')}</h2>
             <div className="space-y-4">
               {bookingHistory
                 .filter(booking => selectedTab === 'upcoming' ? booking.status === 'upcoming' : booking.status === 'completed')
@@ -212,7 +212,7 @@ const PersonalProfilePage = () => {
                       {getStatusText(booking.status)}
                     </span>
                     <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                      Xem chi tiết
+                      {t('profile.viewDetails')}
                     </button>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ const PersonalProfilePage = () => {
 
         {/* Saved Photographers */}
         <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Nhiếp ảnh gia đã lưu</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">{t('profile.savedPhotographers')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {savedPhotographers.map((photographer) => (
               <div key={photographer.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -245,7 +245,7 @@ const PersonalProfilePage = () => {
 
         {/* AI Suggestions */}
         <div className="bg-white rounded-xl shadow-sm p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Ý tưởng AI đã lưu</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">{t('profile.aiSuggestions')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {aiSuggestions.map((suggestion) => (
               <div key={suggestion.id} className="group cursor-pointer">

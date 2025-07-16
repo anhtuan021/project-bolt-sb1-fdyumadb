@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Globe } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -15,9 +16,9 @@ const SignUpPage = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
   
   const { signup } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,11 +34,11 @@ const SignUpPage = () => {
     setError('');
     
     if (!agreeToTerms) {
-      setError('Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật');
+      setError('Please agree to the Terms of Service and Privacy Policy');
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
+      setError('Passwords do not match');
       return;
     }
     
@@ -48,10 +49,10 @@ const SignUpPage = () => {
       if (success) {
         navigate('/'); // Chuyển về trang chủ sau khi đăng ký thành công
       } else {
-        setError('Có lỗi xảy ra khi đăng ký. Vui lòng thử lại.');
+        setError(t('common.error'));
       }
     } catch (error) {
-      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+      setError(t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -75,17 +76,7 @@ const SignUpPage = () => {
               <span className="text-xl font-bold text-gray-900">SnapMatch AI</span>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Globe className="h-4 w-4 text-gray-600" />
-              <select 
-                value={selectedLanguage}
-                onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="text-sm border-none bg-transparent focus:outline-none"
-              >
-                <option>English 🇺🇸</option>
-                <option>Vietnamese 🇻🇳</option>
-              </select>
-            </div>
+            <div></div>
           </div>
         </div>
       </div>
@@ -95,15 +86,15 @@ const SignUpPage = () => {
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 items-center justify-center">
           <div className="max-w-md text-white">
             <h1 className="text-4xl font-bold mb-6">
-              Join the creative world of SnapMatch AI
+              {language === 'vi' ? 'Tham gia thế giới sáng tạo của SnapMatch AI' : 'Join the creative world of SnapMatch AI'}
             </h1>
             <p className="text-xl text-blue-100 mb-8">
-              Transform your ideas into reality with AI-powered creativity
+              {language === 'vi' ? 'Biến ý tưởng của bạn thành hiện thực với sự sáng tạo được hỗ trợ bởi AI' : 'Transform your ideas into reality with AI-powered creativity'}
             </p>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center">
               <h2 className="text-2xl font-bold mb-4 text-blue-100">
-                Create amazing designs with SnapMatch AI
+                {language === 'vi' ? 'Tạo ra những thiết kế tuyệt vời với SnapMatch AI' : 'Create amazing designs with SnapMatch AI'}
               </h2>
             </div>
           </div>
@@ -115,12 +106,12 @@ const SignUpPage = () => {
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Create Account
+                  {t('signup.title')}
                 </h2>
                 <p className="text-gray-600">
-                  Already have an account?{' '}
+                  {t('signup.subtitle')}{' '}
                   <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                    Log in
+                    {t('signup.login')}
                   </Link>
                 </p>
               </div>
@@ -137,7 +128,7 @@ const SignUpPage = () => {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                <span>Sign up with Google</span>
+                <span>{t('signup.googleSignUp')}</span>
               </button>
 
               <div className="relative mb-6">
@@ -145,7 +136,7 @@ const SignUpPage = () => {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+                  <span className="px-2 bg-white text-gray-500">{t('signup.continueWith')}</span>
                 </div>
               </div>
 
@@ -159,7 +150,7 @@ const SignUpPage = () => {
                 
                 <div>
                   <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
+                    {t('signup.fullName')}
                   </label>
                   <input
                     id="fullName"
@@ -169,13 +160,13 @@ const SignUpPage = () => {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter your full name"
+                    placeholder={t('signup.fullNamePlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
+                    {t('signup.email')}
                   </label>
                   <input
                     id="email"
@@ -185,13 +176,13 @@ const SignUpPage = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="name@example.com"
+                    placeholder={t('signup.emailPlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
+                    {t('signup.password')}
                   </label>
                   <div className="relative">
                     <input
@@ -202,7 +193,7 @@ const SignUpPage = () => {
                       value={formData.password}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-                      placeholder="Create a password"
+                      placeholder={t('signup.passwordPlaceholder')}
                     />
                     <button
                       type="button"
@@ -216,12 +207,12 @@ const SignUpPage = () => {
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters long</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('signup.passwordHint')}</p>
                 </div>
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password
+                    {t('signup.confirmPassword')}
                   </label>
                   <div className="relative">
                     <input
@@ -232,7 +223,7 @@ const SignUpPage = () => {
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-                      placeholder="Re-enter your password"
+                      placeholder={t('signup.confirmPasswordPlaceholder')}
                     />
                     <button
                       type="button"
@@ -257,13 +248,13 @@ const SignUpPage = () => {
                     className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="agree-terms" className="text-sm text-gray-600">
-                    I agree to the{' '}
+                    {t('signup.agreeTerms')}{' '}
                     <Link to="/terms" className="text-blue-600 hover:text-blue-700">
-                      Terms of Service
+                      {t('signup.termsOfService')}
                     </Link>
-                    {' '}and{' '}
+                    {' '}{t('signup.and')}{' '}
                     <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
-                      Privacy Policy
+                      {t('signup.privacyPolicy')}
                     </Link>
                   </label>
                 </div>
@@ -273,7 +264,7 @@ const SignUpPage = () => {
                   disabled={isLoading}
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? 'Đang tạo tài khoản...' : 'Create Account'}
+                  {isLoading ? t('signup.loading') : t('signup.createAccount')}
                 </button>
               </form>
             </div>
