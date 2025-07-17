@@ -131,7 +131,7 @@ const PhotographerProfilePage = () => {
                 <div className="flex flex-wrap gap-2">
                   {photographer.languages.map((language, index) => (
                     <span
-                      key={index}
+                      to={`/booking?photographer=${photographer.id}`}
                       className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                     >
                       {language}
