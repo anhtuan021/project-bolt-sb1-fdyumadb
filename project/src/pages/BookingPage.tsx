@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Camera, Calendar, User, Users, Shirt, Heart, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const BookingPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPhotographyType, setSelectedPhotographyType] = useState('');
   const [budgetRange, setBudgetRange] = useState([100, 1000]);
-  const [selectedPhotographers, setSelectedPhotographers] = useState<number[]>([]);
+  const [searchParams] = useSearchParams();
+  const preSelectedPhotographer = searchParams.get('photographer');
 
-  const steps = [
-    { number: 1, title: 'Style & Details', active: currentStep === 1 },
-    { number: 2, title: 'Date & Location', active: currentStep === 2 },
-    { number: 3, title: 'Choose Photographer', active: currentStep === 3 },
-    { number: 4, title: 'Review & Book', active: currentStep === 4 },
-  ];
+  // Skip step 3 if photographer is pre-selected
+  const steps = preSelectedPhotographer 
+    ? [
+        { number: 1, title: 'Style & Details', active: currentStep === 1 },
+        { number: 2, title: 'Date & Location', active: currentStep === 2 },
+        { number: 3, title: 'Review & Book', active: currentStep === 3 },
+      ]
+    : [
+        { number: 1, title: 'Style & Details', active: currentStep === 1 },
+        { number: 2, title: 'Date & Location', active: currentStep === 2 },
+        { number: 3, title: 'Choose Photographer', active: currentStep === 3 },
+        { number: 4, title: 'Review & Book', active: currentStep === 4 },
+      ];
 
   const photographyTypes = [
     {
@@ -61,7 +69,7 @@ const BookingPage = () => {
       rating: 4.9,
       reviews: 128,
       specialties: ['Portrait', 'Event', 'Wedding'],
-      price: '$5/hr',
+      hourlyRate: '$75/hr',
       images: [
         'https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
         'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
@@ -74,7 +82,7 @@ const BookingPage = () => {
       rating: 4.8,
       reviews: 96,
       specialties: ['Portrait', 'Event', 'Wedding'],
-      price: '$3/hr',
+      hourlyRate: '$85/hr',
       images: [
         'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
         'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
@@ -83,8 +91,14 @@ const BookingPage = () => {
     },
   ];
 
+  // Get selected photographer info
+  const selectedPhotographer = preSelectedPhotographer 
+    ? aiMatchedPhotographers.find(p => p.id.toString() === preSelectedPhotographer) || aiMatchedPhotographers[0]
+    : null;
+
   const nextStep = () => {
-    if (currentStep < 4) {
+    const maxSteps = preSelectedPhotographer ? 3 : 4;
+    if (currentStep < maxSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -93,14 +107,6 @@ const BookingPage = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
-  };
-
-  const togglePhotographer = (id: number) => {
-    setSelectedPhotographers(prev => 
-      prev.includes(id) 
-        ? prev.filter(p => p !== id)
-        : [...prev, id]
-    );
   };
 
   return (
@@ -185,58 +191,41 @@ const BookingPage = () => {
               </div>
             </div>
 
-            {/* AI Matched Photographers Preview */}
-            {selectedPhotographyType && (
+            {/* Show selected photographer if pre-selected */}
+            {preSelectedPhotographer && selectedPhotographer && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  AI-Matched Photographers
+                  Selected Photographer
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {aiMatchedPhotographers.map((photographer) => (
-                    <div key={photographer.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center mb-3">
-                        <div className="w-12 h-12 bg-gray-300 rounded-full mr-3"></div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">{photographer.name}</h4>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <span>★ {photographer.rating}</span>
-                            <span className="ml-1">({photographer.reviews} reviews)</span>
-                          </div>
-                        </div>
+                <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                  <div className="flex items-center mb-3">
+                    <div className="w-12 h-12 bg-gray-300 rounded-full mr-3"></div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">{selectedPhotographer.name}</h4>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <span>★ {selectedPhotographer.rating}</span>
+                        <span className="ml-1">({selectedPhotographer.reviews} reviews)</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-2 mb-3">
-                        {photographer.images.map((image, index) => (
-                          <img
-                            key={index}
-                            src={image}
-                            alt="Portfolio"
-                            className="w-full h-16 object-cover rounded"
-                          />
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">
-                          {photographer.specialties.join(', ')}
-                        </span>
-                        <span className="font-medium text-gray-900">
-                          {photographer.price}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => togglePhotographer(photographer.id)}
-                        className={`w-full mt-3 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                          selectedPhotographers.includes(photographer.id)
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {selectedPhotographers.includes(photographer.id)
-                          ? 'Selected'
-                          : 'Select Photographer'
-                        }
-                      </button>
                     </div>
-                  ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {selectedPhotographer.images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt="Portfolio"
+                        className="w-full h-16 object-cover rounded"
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">
+                      {selectedPhotographer.specialties.join(', ')}
+                    </span>
+                    <span className="font-medium text-blue-600">
+                      {selectedPhotographer.hourlyRate}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -308,8 +297,8 @@ const BookingPage = () => {
           </div>
         )}
 
-        {/* Step 3: Choose Photographer */}
-        {currentStep === 3 && (
+        {/* Step 3: Choose Photographer (only if not pre-selected) */}
+        {currentStep === 3 && !preSelectedPhotographer && (
           <div className="bg-white rounded-xl shadow-sm p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               Choose Your Photographer
@@ -319,11 +308,7 @@ const BookingPage = () => {
               {aiMatchedPhotographers.map((photographer) => (
                 <div
                   key={photographer.id}
-                  className={`border-2 rounded-lg p-6 transition-all ${
-                    selectedPhotographers.includes(photographer.id)
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                  className="border-2 border-gray-200 rounded-lg p-6 hover:border-gray-300 transition-all"
                 >
                   <div className="flex items-start gap-6">
                     <div className="w-24 h-24 bg-gray-300 rounded-full flex-shrink-0"></div>
@@ -340,9 +325,8 @@ const BookingPage = () => {
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-blue-600">
-                            {photographer.price}
+                            {photographer.hourlyRate}
                           </div>
-                          <div className="text-sm text-gray-600">per hour</div>
                         </div>
                       </div>
                       
@@ -368,18 +352,8 @@ const BookingPage = () => {
                             </span>
                           ))}
                         </div>
-                        <button
-                          onClick={() => togglePhotographer(photographer.id)}
-                          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                            selectedPhotographers.includes(photographer.id)
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {selectedPhotographers.includes(photographer.id)
-                            ? 'Selected'
-                            : 'Select Photographer'
-                          }
+                        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                          Select Photographer
                         </button>
                       </div>
                     </div>
@@ -390,8 +364,8 @@ const BookingPage = () => {
           </div>
         )}
 
-        {/* Step 4: Review & Book */}
-        {currentStep === 4 && (
+        {/* Review & Book Step */}
+        {(currentStep === 3 && preSelectedPhotographer) || (currentStep === 4 && !preSelectedPhotographer) && (
           <div className="bg-white rounded-xl shadow-sm p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               Review Your Booking
@@ -405,24 +379,21 @@ const BookingPage = () => {
               
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Selected Photographer</h3>
-                {selectedPhotographers.map(id => {
-                  const photographer = aiMatchedPhotographers.find(p => p.id === id);
-                  return photographer ? (
-                    <div key={id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">{photographer.name}</h4>
-                        <p className="text-gray-600">{photographer.price}</p>
-                      </div>
+                {selectedPhotographer && (
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">{selectedPhotographer.name}</h4>
+                      <p className="text-blue-600 font-medium">{selectedPhotographer.hourlyRate}</p>
                     </div>
-                  ) : null;
-                })}
+                  </div>
+                )}
               </div>
               
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Total Estimated Cost</h3>
-                <p className="text-2xl font-bold text-blue-600">$10</p>
-                <p className="text-gray-600 text-sm">3 hours × $3/hr</p>
+                <p className="text-2xl font-bold text-blue-600">$225</p>
+                <p className="text-gray-600 text-sm">3 hours × $75/hr</p>
               </div>
               
               <button className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg">
@@ -449,9 +420,9 @@ const BookingPage = () => {
           
           <button
             onClick={nextStep}
-            disabled={currentStep === 4}
+            disabled={(preSelectedPhotographer && currentStep === 3) || (!preSelectedPhotographer && currentStep === 4)}
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
-              currentStep === 4
+              (preSelectedPhotographer && currentStep === 3) || (!preSelectedPhotographer && currentStep === 4)
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}

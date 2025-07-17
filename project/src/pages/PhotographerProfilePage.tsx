@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Star, MapPin, Clock, Check, Camera, Users, Award, MessageCircle, Calendar, Shield } from 'lucide-react';
 
 const PhotographerProfilePage = () => {
   const [selectedTab, setSelectedTab] = useState('all');
-  const [selectedPackage, setSelectedPackage] = useState('standard');
+  const { id } = useParams();
 
   const photographer = {
-    id: 1,
+    id: id || '1',
     name: 'Alexander Mitchell',
     location: 'San Francisco, CA',
     rating: 4.9,
@@ -23,6 +23,7 @@ const PhotographerProfilePage = () => {
     image: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     about: 'With over 8 years of experience in professional photography, I specialize in capturing life\'s most precious moments. My passion lies in creating timeless images that tell your unique story through a modern lens. I work with both natural and studio lighting, bringing out the best in every subject while maintaining a natural and authentic feel in every shot.',
     specialties: ['Wedding Photography', 'Portrait Photography', 'Fashion Photography', 'Commercial Photography'],
+    hourlyRate: '$75/hour'
   };
 
   const portfolioItems = [
@@ -35,49 +36,6 @@ const PhotographerProfilePage = () => {
     { id: 7, category: 'fashion', image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop' },
     { id: 8, category: 'commercial', image: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop' },
     { id: 9, category: 'portrait', image: 'https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop' },
-  ];
-
-  const packages = [
-    {
-      id: 'basic',
-      name: 'Basic',
-      price: '$10',
-      duration: '4 hours',
-      features: [
-        '2 photographers',
-        'Digital copies',
-        'Basic editing',
-        'Online gallery',
-      ],
-    },
-    {
-      id: 'standard',
-      name: 'Standard',
-      price: '$15',
-      duration: '6 hours',
-      features: [
-        '2 photographers',
-        'Digital copies',
-        'Premium editing',
-        'Online gallery',
-        'Prints',
-      ],
-      popular: true,
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      price: '$20',
-      duration: '8 hours',
-      features: [
-        '2 photographers',
-        'Digital copies',
-        'Premium editing',
-        'Online gallery',
-        'Prints',
-        'Video highlights',
-      ],
-    },
   ];
 
   const reviews = [
@@ -167,10 +125,16 @@ const PhotographerProfilePage = () => {
                         </div>
                       )}
                     </div>
+                    <div className="text-2xl font-bold text-blue-600 mb-2">
+                      {photographer.hourlyRate}
+                    </div>
                   </div>
-                  <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  <Link
+                    to={`/booking?photographer=${photographer.id}`}
+                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
                     Book Now
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Stats */}
@@ -310,51 +274,6 @@ const PhotographerProfilePage = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Pricing Packages */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Pricing Packages</h3>
-              <div className="space-y-4">
-                {packages.map((pkg) => (
-                  <div
-                    key={pkg.id}
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
-                      selectedPackage === pkg.id
-                        ? 'border-blue-600 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    } ${pkg.popular ? 'ring-2 ring-blue-200' : ''}`}
-                    onClick={() => setSelectedPackage(pkg.id)}
-                  >
-                    {pkg.popular && (
-                      <div className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium mb-2 inline-block">
-                        Most Popular
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-gray-900">{pkg.name}</h4>
-                      <span className="text-2xl font-bold text-blue-600">{pkg.price}</span>
-                    </div>
-                    <p className="text-gray-600 text-sm mb-3">{pkg.duration}</p>
-                    <ul className="space-y-2">
-                      {pkg.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm text-gray-600">
-                          <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    {selectedPackage === pkg.id && (
-                      <Link
-                        to="/booking"
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block mt-4"
-                      >
-                        Select Plan
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Contact */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Ready to Book?</h3>
@@ -363,7 +282,7 @@ const PhotographerProfilePage = () => {
               </p>
               <div className="space-y-3">
                 <Link
-                  to="/booking"
+                  to={`/booking?photographer=${photographer.id}`}
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block font-medium"
                 >
                   Book Now
@@ -375,6 +294,29 @@ const PhotographerProfilePage = () => {
               <div className="mt-4 text-center text-sm text-gray-500">
                 <p>Average response time: 2 hours</p>
                 <p>Free cancellation up to 24 hours before the event</p>
+              </div>
+            </div>
+
+            {/* Availability */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Availability</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Today</span>
+                  <span className="text-green-600 font-medium">Available</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Tomorrow</span>
+                  <span className="text-green-600 font-medium">Available</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">This Weekend</span>
+                  <span className="text-orange-600 font-medium">Limited</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Next Week</span>
+                  <span className="text-green-600 font-medium">Available</span>
+                </div>
               </div>
             </div>
           </div>

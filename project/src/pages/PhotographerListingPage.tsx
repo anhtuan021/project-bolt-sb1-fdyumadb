@@ -20,7 +20,7 @@ const PhotographerListingPage = () => {
       rating: 4.9,
       reviews: 128,
       specialties: ['Wedding', 'Portrait'],
-      price: '$3/hr',
+      hourlyRate: '$75/hr',
       availability: 'Available Now',
       image: 'https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
       description: 'Award-winning photographer specializing in weddings and portraits. Based in New York City.',
@@ -33,7 +33,7 @@ const PhotographerListingPage = () => {
       rating: 4.8,
       reviews: 96,
       specialties: ['Commercial', 'Event'],
-      price: '$3/hr',
+      hourlyRate: '$85/hr',
       availability: 'Available Tomorrow',
       image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
       description: 'Creative commercial photographer with 10+ years of experience. Available nationwide.',
@@ -46,7 +46,7 @@ const PhotographerListingPage = () => {
       rating: 4.7,
       reviews: 84,
       specialties: ['Portrait', 'Fashion'],
-      price: '$4/hr',
+      hourlyRate: '$90/hr',
       availability: 'Available Next Week',
       image: 'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
       description: 'Specializing in portrait and fashion photography. Based in Los Angeles.',
@@ -59,7 +59,7 @@ const PhotographerListingPage = () => {
       rating: 4.9,
       reviews: 156,
       specialties: ['Wedding', 'Event'],
-      price: '$2/hr',
+      hourlyRate: '$70/hr',
       availability: 'Available Now',
       image: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
       description: 'Experienced wedding and event photographer. Based in Las Vegas.',
@@ -72,7 +72,7 @@ const PhotographerListingPage = () => {
       rating: 4.8,
       reviews: 112,
       specialties: ['Portrait', 'Family'],
-      price: '$3/hr',
+      hourlyRate: '$80/hr',
       availability: 'Available Tomorrow',
       image: 'https://images.pexels.com/photos/3184639/pexels-photo-3184639.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
       description: 'Family and portrait photographer with a passion for natural light.',
@@ -85,7 +85,7 @@ const PhotographerListingPage = () => {
       rating: 4.7,
       reviews: 92,
       specialties: ['Commercial', 'Product'],
-      price: '$2/hr',
+      hourlyRate: '$65/hr',
       availability: 'Available Next Week',
       image: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
       description: 'Commercial and product photographer based in Berlin.',
@@ -202,9 +202,9 @@ const PhotographerListingPage = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Price Range</option>
-              <option value="0-100">$0 - $100</option>
-              <option value="100-200">$100 - $200</option>
-              <option value="200+">$200+</option>
+              <option value="0-50">$0 - $50/hr</option>
+              <option value="50-100">$50 - $100/hr</option>
+              <option value="100+">$100+/hr</option>
             </select>
             <select
               value={selectedFilters.availability}
@@ -274,7 +274,7 @@ const PhotographerListingPage = () => {
                       {photographer.rating}
                     </span>
                     <span className="text-gray-500 text-sm ml-1">
-                      ({photographer.reviews} reviews)
+                      ({photographer.reviews})
                     </span>
                   </div>
                 </div>
@@ -300,20 +300,28 @@ const PhotographerListingPage = () => {
                 </p>
 
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold text-gray-900">
-                    {photographer.price}
+                  <span className="text-lg font-semibold text-blue-600">
+                    {photographer.hourlyRate}
                   </span>
                   <span className={`text-sm font-medium ${getAvailabilityColor(photographer.availability)}`}>
                     {photographer.availability}
                   </span>
                 </div>
 
-                <Link
-                  to={`/photographer/${photographer.id}`}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block font-medium"
-                >
-                  View Profile
-                </Link>
+                <div className="flex gap-2">
+                  <Link
+                    to={`/photographer/${photographer.id}`}
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-center font-medium"
+                  >
+                    View Profile
+                  </Link>
+                  <Link
+                    to={`/booking?photographer=${photographer.id}`}
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium"
+                  >
+                    Book Now
+                  </Link>
+                </div>
               </div>
             </div>
           ))}
