@@ -188,11 +188,11 @@ const BookingInvoicePage = () => {
                 Download Invoice (PDF)
               </button>
               <Link
-                to="/bookings"
+                to="/booking"
                 className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center justify-center"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
-                Back to My Bookings
+                Back to My Booking
               </Link>
             </div>
 

@@ -14,6 +14,7 @@ import PersonalProfilePage from './pages/PersonalProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import EditProfilePage from './pages/EditProfilePage';
+import BookingInvoicePage from './pages/BookingInvoicePage';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
                       <Route path="/photographers" element={<PhotographerListingPage />} />
                       <Route path="/photographer/:id" element={<PhotographerProfilePage />} />
                       <Route path="/booking" element={<BookingPage />} />
+                      <Route path="/booking-invoice" element={<BookingInvoicePage />} />
                       <Route path="/ai-tools" element={<AIToolsPage />} />
                       <Route path="/support" element={<SupportPage />} />
                       <Route path="/profile" element={<PersonalProfilePage />} />

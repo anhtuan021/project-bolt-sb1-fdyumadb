@@ -1,196 +1,171 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Camera, Calendar, User, Users, Shirt, Heart, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { Camera, Calendar, User, Users, Shirt, Heart, ArrowLeft, ArrowRight, MapPin, Clock } from 'lucide-react';
+import { getPhotographerById, getAllPhotographers } from '../data/photographers';
+import { useAuth } from '../contexts/AuthContext';
 
 const BookingPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPhotographyType, setSelectedPhotographyType] = useState('');
   const [budgetRange, setBudgetRange] = useState([100, 1000]);
+  const [selectedPhotographerId, setSelectedPhotographerId] = useState<string>('');
+  const [bookingDetails, setBookingDetails] = useState({
+    date: '',
+    time: '',
+    duration: '2',
+    location: '',
+    notes: ''
+  });
+  
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const preSelectedPhotographer = searchParams.get('photographer');
 
-  // Skip step 3 if photographer is pre-selected
-  const steps = preSelectedPhotographer 
-    ? [
-        { number: 1, title: 'Style & Details', active: currentStep === 1 },
-        { number: 2, title: 'Date & Location', active: currentStep === 2 },
-        { number: 3, title: 'Review & Book', active: currentStep === 3 },
-      ]
-    : [
-        { number: 1, title: 'Style & Details', active: currentStep === 1 },
-        { number: 2, title: 'Date & Location', active: currentStep === 2 },
-        { number: 3, title: 'Choose Photographer', active: currentStep === 3 },
-        { number: 4, title: 'Review & Book', active: currentStep === 4 },
-      ];
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
   const photographyTypes = [
     {
       id: 'portrait',
-      icon: Camera,
-      title: 'Portrait Photography',
-      description: 'Professional headshots and portraits',
+      name: 'Portrait Photography',
+      icon: User,
+      description: 'Professional headshots and personal portraits',
     },
     {
       id: 'event',
-      icon: Calendar,
-      title: 'Event Photography',
-      description: 'Capturing special moments',
-    },
-    {
-      id: 'product',
-      icon: User,
-      title: 'Product Photography',
-      description: 'Showcase your products',
+      name: 'Event Photography',
+      icon: Users,
+      description: 'Capture your special events and celebrations',
     },
     {
       id: 'wedding',
+      name: 'Wedding Photography',
       icon: Heart,
-      title: 'Wedding Photography',
-      description: 'Lifetime memories',
-    },
-    {
-      id: 'family',
-      icon: Users,
-      title: 'Family Photography',
-      description: 'Capture family moments',
+      description: 'Document your most important day',
     },
     {
       id: 'fashion',
+      name: 'Fashion Photography',
       icon: Shirt,
-      title: 'Fashion Photography',
-      description: 'Style and creativity',
+      description: 'Professional fashion and lifestyle shoots',
     },
   ];
 
-  const aiMatchedPhotographers = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      rating: 4.9,
-      reviews: 128,
-      specialties: ['Portrait', 'Event', 'Wedding'],
-      hourlyRate: '$75/hr',
-      images: [
-        'https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
-        'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
-        'https://images.pexels.com/photos/3184639/pexels-photo-3184639.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
-      ],
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      rating: 4.8,
-      reviews: 96,
-      specialties: ['Portrait', 'Event', 'Wedding'],
-      hourlyRate: '$85/hr',
-      images: [
-        'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
-        'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
-        'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=200&h=150&fit=crop',
-      ],
-    },
-  ];
+  const allPhotographers = getAllPhotographers();
 
   // Get selected photographer info
   const selectedPhotographer = preSelectedPhotographer 
-    ? aiMatchedPhotographers.find(p => p.id.toString() === preSelectedPhotographer) || aiMatchedPhotographers[0]
+    ? getPhotographerById(preSelectedPhotographer)
+    : selectedPhotographerId 
+    ? getPhotographerById(selectedPhotographerId)
     : null;
 
+  // Get photographers for selection step
+  const photographersForSelection = selectedPhotographerId 
+    ? [getPhotographerById(selectedPhotographerId)].filter(Boolean)
+    : allPhotographers.slice(0, 3);
+
   const nextStep = () => {
-    const maxSteps = preSelectedPhotographer ? 3 : 4;
-    if (currentStep < maxSteps) {
-      setCurrentStep(currentStep + 1);
-    }
+    setCurrentStep(prev => prev + 1);
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+    setCurrentStep(prev => prev - 1);
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Progress Steps */}
-          <div className="flex items-center justify-between mb-8">
-            {steps.map((step, index) => (
-              <div key={step.number} className="flex items-center">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step.active
-                      ? 'bg-blue-600 text-white'
-                      : currentStep > step.number
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-200 text-gray-600'
-                  }`}
-                >
-                  {currentStep > step.number ? '✓' : step.number}
-                </div>
-                <div className="ml-3">
-                  <div className={`text-sm font-medium ${
-                    step.active ? 'text-blue-600' : 'text-gray-500'
-                  }`}>
-                    {step.title}
-                  </div>
-                </div>
-                {index < steps.length - 1 && (
-                  <div className="flex-1 mx-4 h-px bg-gray-300"></div>
-                )}
-              </div>
-            ))}
-          </div>
+  const handleBookingDetailsChange = (field: string, value: string) => {
+    setBookingDetails(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleConfirmBooking = () => {
+    // Create booking data
+    const bookingData = {
+      photographer: selectedPhotographer,
+      photographyType: selectedPhotographyType,
+      bookingDetails,
+      budgetRange,
+      totalCost: calculateTotalCost(),
+      bookingDate: new Date().toISOString(),
+      status: 'confirmed'
+    };
+
+    // Save to localStorage (in real app, this would be API call)
+    const existingBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+    const newBooking = {
+      ...bookingData,
+      id: Date.now().toString(),
+      reference: `SM-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`
+    };
+    existingBookings.push(newBooking);
+    localStorage.setItem('userBookings', JSON.stringify(existingBookings));
+
+    // Navigate to invoice page with booking data
+    navigate('/booking-invoice', { 
+      state: { bookingData: newBooking }
+    });
+  };
+
+  const calculateTotalCost = () => {
+    if (!selectedPhotographer) return 0;
+    const hourlyRate = parseInt(selectedPhotographer.hourlyRate.replace(/[^0-9]/g, ''));
+    const duration = parseInt(bookingDetails.duration);
+    return hourlyRate * duration;
+  };
+
+  const totalSteps = preSelectedPhotographer ? 3 : 4;
+
+  // Get minimum date (today)
+  const today = new Date().toISOString().split('T')[0];
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h1>
+          <p className="text-gray-600 mb-6">Please log in to book a photographer</p>
+          <Link
+            to="/login"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go to Login
+          </Link>
         </div>
       </div>
+    );
+  }
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Step 1: Style & Details */}
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-gray-900">Book a Photographer</h1>
+            <span className="text-gray-600">Step {currentStep} of {totalSteps}</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Step 1: Photography Type Selection */}
         {currentStep === 1 && (
           <div className="bg-white rounded-xl shadow-sm p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
-              What kind of photos are you looking for?
+              What type of photography do you need?
             </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {photographyTypes.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => setSelectedPhotographyType(type.id)}
-                  className={`p-6 rounded-xl border-2 text-left transition-all ${
-                    selectedPhotographyType === type.id
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <type.icon className={`h-8 w-8 mb-4 ${
-                    selectedPhotographyType === type.id ? 'text-blue-600' : 'text-gray-600'
-                  }`} />
-                  <h3 className="font-semibold text-gray-900 mb-2">{type.title}</h3>
-                  <p className="text-gray-600 text-sm">{type.description}</p>
-                </button>
-              ))}
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Budget Range</h3>
-              <div className="px-6">
-                <input
-                  type="range"
-                  min="100"
-                  max="1000"
-                  value={budgetRange[1]}
-                  onChange={(e) => setBudgetRange([budgetRange[0], parseInt(e.target.value)])}
-                  className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-sm text-gray-600 mt-2">
-                  <span>${budgetRange[0]}</span>
-                  <span>${budgetRange[1]}</span>
-                </div>
-              </div>
-            </div>
-
+            
             {/* Show selected photographer if pre-selected */}
             {preSelectedPhotographer && selectedPhotographer && (
               <div className="mb-8">
@@ -199,7 +174,11 @@ const BookingPage = () => {
                 </h3>
                 <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
                   <div className="flex items-center mb-3">
-                    <div className="w-12 h-12 bg-gray-300 rounded-full mr-3"></div>
+                    <img
+                      src={selectedPhotographer.image}
+                      alt={selectedPhotographer.name}
+                      className="w-12 h-12 rounded-full object-cover mr-3"
+                    />
                     <div>
                       <h4 className="font-medium text-gray-900">{selectedPhotographer.name}</h4>
                       <div className="flex items-center text-sm text-gray-600">
@@ -209,10 +188,10 @@ const BookingPage = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mb-3">
-                    {selectedPhotographer.images.map((image, index) => (
+                    {selectedPhotographer.portfolioItems.slice(0, 3).map((item, index) => (
                       <img
                         key={index}
-                        src={image}
+                        src={item.image}
                         alt="Portfolio"
                         className="w-full h-16 object-cover rounded"
                       />
@@ -220,7 +199,7 @@ const BookingPage = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">
-                      {selectedPhotographer.specialties.join(', ')}
+                      {selectedPhotographer.specialties.map(s => s.replace(' Photography', '')).join(', ')}
                     </span>
                     <span className="font-medium text-blue-600">
                       {selectedPhotographer.hourlyRate}
@@ -229,75 +208,140 @@ const BookingPage = () => {
                 </div>
               </div>
             )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {photographyTypes.map((type) => {
+                const IconComponent = type.icon;
+                return (
+                  <div
+                    key={type.id}
+                    onClick={() => setSelectedPhotographyType(type.id)}
+                    className={`border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-md ${
+                      selectedPhotographyType === type.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center mb-4">
+                      <IconComponent className="h-8 w-8 text-blue-600 mr-3" />
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {type.name}
+                      </h3>
+                    </div>
+                    <p className="text-gray-600">{type.description}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Step 2: Date & Location */}
+        {/* Step 2: Date, Time & Location */}
         {currentStep === 2 && (
           <div className="bg-white rounded-xl shadow-sm p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               When and where do you need photography?
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Calendar className="inline h-4 w-4 mr-1" />
+                    Event Date
+                  </label>
+                  <input
+                    type="date"
+                    min={today}
+                    value={bookingDetails.date}
+                    onChange={(e) => handleBookingDetailsChange('date', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Clock className="inline h-4 w-4 mr-1" />
+                    Event Time
+                  </label>
+                  <input
+                    type="time"
+                    value={bookingDetails.time}
+                    onChange={(e) => handleBookingDetailsChange('time', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duration (hours)
+                  </label>
+                  <select 
+                    value={bookingDetails.duration}
+                    onChange={(e) => handleBookingDetailsChange('duration', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hours</option>
+                    <option value="3">3 hours</option>
+                    <option value="4">4 hours</option>
+                    <option value="5">5 hours</option>
+                    <option value="6">6 hours</option>
+                    <option value="8">8 hours</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Estimated Cost
+                  </label>
+                  <div className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg">
+                    <span className="text-2xl font-bold text-blue-600">
+                      ${calculateTotalCost()}
+                    </span>
+                    {selectedPhotographer && (
+                      <span className="text-gray-600 ml-2">
+                        ({bookingDetails.duration}h × {selectedPhotographer.hourlyRate})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Event Date
+                  <MapPin className="inline h-4 w-4 mr-1" />
+                  Event Location
                 </label>
                 <input
-                  type="date"
+                  type="text"
+                  placeholder="Enter the address or venue name"
+                  value={bookingDetails.location}
+                  onChange={(e) => handleBookingDetailsChange('location', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Event Time
+                  Additional Notes (Optional)
                 </label>
-                <input
-                  type="time"
+                <textarea
+                  rows={4}
+                  placeholder="Tell us more about your event or specific requirements..."
+                  value={bookingDetails.notes}
+                  onChange={(e) => handleBookingDetailsChange('notes', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                ></textarea>
               </div>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Event Location
-              </label>
-              <input
-                type="text"
-                placeholder="Enter the address or venue name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Duration (hours)
-              </label>
-              <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>1 hour</option>
-                <option>2 hours</option>
-                <option>3 hours</option>
-                <option>4 hours</option>
-                <option>5+ hours</option>
-              </select>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Additional Details
-              </label>
-              <textarea
-                rows={4}
-                placeholder="Tell us more about your event or specific requirements..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              ></textarea>
             </div>
           </div>
         )}
 
-        {/* Step 3: Choose Photographer (only if not pre-selected) */}
+        {/* Step 3: Photographer Selection (only if not pre-selected) */}
         {currentStep === 3 && !preSelectedPhotographer && (
           <div className="bg-white rounded-xl shadow-sm p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
@@ -305,13 +349,22 @@ const BookingPage = () => {
             </h2>
             
             <div className="space-y-6">
-              {aiMatchedPhotographers.map((photographer) => (
+              {photographersForSelection.map((photographer) => (
                 <div
                   key={photographer.id}
-                  className="border-2 border-gray-200 rounded-lg p-6 hover:border-gray-300 transition-all"
+                  className={`border-2 rounded-lg p-6 transition-all cursor-pointer ${
+                    selectedPhotographerId === photographer.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setSelectedPhotographerId(photographer.id)}
                 >
                   <div className="flex items-start gap-6">
-                    <div className="w-24 h-24 bg-gray-300 rounded-full flex-shrink-0"></div>
+                    <img
+                      src={photographer.image}
+                      alt={photographer.name}
+                      className="w-24 h-24 rounded-full object-cover flex-shrink-0"
+                    />
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div>
@@ -331,10 +384,10 @@ const BookingPage = () => {
                       </div>
                       
                       <div className="grid grid-cols-3 gap-3 my-4">
-                        {photographer.images.map((image, index) => (
+                        {photographer.portfolioItems.slice(0, 3).map((item, index) => (
                           <img
                             key={index}
-                            src={image}
+                            src={item.image}
                             alt="Portfolio"
                             className="w-full h-20 object-cover rounded"
                           />
@@ -343,18 +396,22 @@ const BookingPage = () => {
                       
                       <div className="flex items-center justify-between">
                         <div className="flex gap-2">
-                          {photographer.specialties.map((specialty, index) => (
+                          {photographer.specialties.slice(0, 3).map((specialty, index) => (
                             <span
                               key={index}
                               className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm"
                             >
-                              {specialty}
+                              {specialty.replace(' Photography', '')}
                             </span>
                           ))}
                         </div>
-                        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                          Select Photographer
-                        </button>
+                        <div className={`px-4 py-2 rounded-lg font-medium ${
+                          selectedPhotographerId === photographer.id
+                            ? 'bg-green-600 text-white'
+                            : 'bg-blue-600 text-white'
+                        }`}>
+                          {selectedPhotographerId === photographer.id ? 'Selected' : 'Select'}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -365,39 +422,70 @@ const BookingPage = () => {
         )}
 
         {/* Review & Book Step */}
-        {(currentStep === 3 && preSelectedPhotographer) || (currentStep === 4 && !preSelectedPhotographer) && (
+        {((currentStep === 3 && preSelectedPhotographer) || (currentStep === 4 && !preSelectedPhotographer)) && (
           <div className="bg-white rounded-xl shadow-sm p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               Review Your Booking
             </h2>
             
             <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Photography Type</h3>
-                <p className="text-gray-600 capitalize">{selectedPhotographyType} Photography</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Photography Type</h3>
+                  <p className="text-gray-600 capitalize">{selectedPhotographyType} Photography</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Date & Time</h3>
+                  <p className="text-gray-600">
+                    {bookingDetails.date} at {bookingDetails.time}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Duration</h3>
+                  <p className="text-gray-600">{bookingDetails.duration} hours</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
+                  <p className="text-gray-600">{bookingDetails.location}</p>
+                </div>
               </div>
               
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Selected Photographer</h3>
                 {selectedPhotographer && (
                   <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-                    <div>
+                    <img
+                      src={selectedPhotographer.image}
+                      alt={selectedPhotographer.name}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{selectedPhotographer.name}</h4>
+                      <p className="text-gray-600">{selectedPhotographer.location}</p>
                       <p className="text-blue-600 font-medium">{selectedPhotographer.hourlyRate}</p>
                     </div>
                   </div>
                 )}
               </div>
               
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Total Estimated Cost</h3>
-                <p className="text-2xl font-bold text-blue-600">$225</p>
-                <p className="text-gray-600 text-sm">3 hours × $75/hr</p>
+              <div className="border-t pt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold text-gray-900">Total Cost</span>
+                  <span className="text-3xl font-bold text-blue-600">${calculateTotalCost()}</span>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  {bookingDetails.duration} hours × {selectedPhotographer?.hourlyRate}
+                </p>
               </div>
               
-              <button className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg">
-                Confirm Booking
+              <button 
+                onClick={handleConfirmBooking}
+                className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+              >
+                Confirm Booking & Pay
               </button>
             </div>
           </div>
@@ -420,9 +508,17 @@ const BookingPage = () => {
           
           <button
             onClick={nextStep}
-            disabled={(preSelectedPhotographer && currentStep === 3) || (!preSelectedPhotographer && currentStep === 4)}
+            disabled={
+              (preSelectedPhotographer && currentStep === 3) || 
+              (!preSelectedPhotographer && currentStep === 4) ||
+              (!preSelectedPhotographer && currentStep === 3 && !selectedPhotographerId) ||
+              (currentStep === 2 && (!bookingDetails.date || !bookingDetails.time || !bookingDetails.location))
+            }
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
-              (preSelectedPhotographer && currentStep === 3) || (!preSelectedPhotographer && currentStep === 4)
+              (preSelectedPhotographer && currentStep === 3) || 
+              (!preSelectedPhotographer && currentStep === 4) ||
+              (!preSelectedPhotographer && currentStep === 3 && !selectedPhotographerId) ||
+              (currentStep === 2 && (!bookingDetails.date || !bookingDetails.time || !bookingDetails.location))
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
